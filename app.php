@@ -1,155 +1,149 @@
-
-<html>
-<head>
-<style>
-h2 {
-    color: rgb(159,107,63);
-    font-family: Arial;
-    font-size: 250%;
-
-}
-h3 {
-    color: rgb(84,84,84);
-    font-family: Arial;
-
-
-}
-p  {
-    color: rgb(75,106,136);
-    font-family: Arial;
-    font-size:;
-}
-</style>
-</head>
-<body>
-
-</body>
-</html>
-
-<h2 style="text-align:center;">Grocery list</h2>
-<h3 style="text-align:center;"><i>For all you who hate carrying paper around</i></h3>
-
-<img src="https://d30y9cdsu7xlg0.cloudfront.net/png/28774-200.png">
-
-<br>
-
-
-</br>
-
-<form>
-
-<form method="get">
-
-  <label for="message">#1:* <label>
-  <input type="text" name="a"<br><br>
-
-	<label for="message">#2:* <label>
-	<input type="text" name="b"<br><br>
-
-
-	<label for="to">#3:* <label>
-	<input type="text" name="c"<br><br>
-
-
-  <label for="from">#4:* <label>
-	<input type="text" name="d"<br><br>
-
-
-
-	<!-- This is the save buttn-->
-	<input type="Submit" value="Save to DB">
-
-
-<form>
-	<p style="text-align:center;"><b> Add the items you need and they will appear
-	as a list below </b></p>
-
 <?php
 
-	//check if there is variable in the URL
-	if (isset ($_GET ["a"])) {
-		//only if there is message in the URL
-		//echo "there is message";
-		//if its empty
-		if (empty($_GET ["a"])){
-			//it is empty
-			echo "Enter the item <br>";
+//required another php file
+require_once("../config.php");
+
+$everything_was_okay = true;
+
+
+//**************
+//to field validation
+//******************
+if(isset($_GET["to"])){
+	if(empty($_GET["to"])){
+		$everything_was_okay = false;//it is empty
+
+		echo "Please enter the recipient!";
+
 		}else{
 			//its not empty
-			echo "#1 item: ".$_GET["a"]."<br>";
-		}
+		echo "to: ".$_GET["to"]."<br>";
 
-	}else{
-		//echo "there is no such thing as message";
 	}
+}else{
+  $everything_was_okay = false;
+}
 
-		//check if there is variable in the URL
-		if (isset ($_GET ["b"])) {
-			//only if there is message in the URL
-			//echo "there is message";
-			//if its empty
-			if (empty($_GET ["b"])){
-				//it is empty
-				echo "Enter the item <br>";
-			}else{
-				//its not empty
-				echo "#2 item: ".$_GET["b"]."<br>";
-			}
+if(isset($_GET["from"])){
 
-		}else{
-			//echo "there is no such thing as message";
 
-		}
 
-	//check if there is variable in the URL
-	if (isset ($_GET ["c"])) {
+	if(empty($_GET["from"])){
+		//it is empty
+		$everything_was_okay = false;
+		echo "Please enter the recipient!";
 
-		//only if there is message in the URL
-		//echo "there is message";
-
-		//if its empty
-		if (empty($_GET ["c"])){
-
-			//it is empty
-			echo "Enter the item <br> ";
-
-		}else{
-
-			//its not empty
-
-			echo "#3 item: ".$_GET["c"]."<br>";
-		}
-
-	}else{
-		//echo "there is no such thing as message";
-	}
-		//check if there is variable in the URL
-	if (isset ($_GET ["d"])) {
-
-		//only if there is message in the URL
-		//echo "there is message";
-
-		//if its empty
-		if (empty($_GET ["d"])){
-			//it is empty
-			echo "Enter the item <br>";
 		}else{
 			//its not empty
-			echo "#4 item : ".$_GET["d"]."<br>";
-		}
+		echo "from: ".$_GET["from"]."<br>";
 
-	}else{
-		//echo "there is no such thing as message";
+	}
+  	}else{
+  $everything_was_okay = true;
+}
+
+
+//check if there is variable in the URL
+if(isset($_GET["message"])){
+
+	//only if there is message in the URL
+	//echo "there is a message";
+
+	if(empty($_GET["message"])){
+		//it is empty
+		$everything_was_okay = false;
+		echo "Please enter the message!";
+
+		}else{
+			//its not empty
+		echo "Message: ".$_GET["message"]."<br>";
 	}
 
-	//Getting the message from the address
-	// if there is ?name= .. then $_GET ["name"]
-	//$my_message = $_GET["message"];
-	//$to = $_GET ["to"];
-	//$from = $_GET ["from"];
 
-	//echo "My message is ".$my_message." and is to ".$to. " and is from " .$from;
+}else{
+$everything_was_okay = true;
+}
 
+
+
+
+
+
+
+//Getting the message from address
+
+//$my_message = $_GET["message"];
+//$to = $_GET["to"];
+//$from = $_GET["from"];
+
+//echo "My message is ".$my_message." and is to ".$to." and is from ".$from;
+
+/*********************************
+*************Save to DB**********
+************************************/
+
+
+// ? was everything okay
+if($everything_was_okay == true) {
+
+	echo "Saving to database ...";
+
+
+//connection with username and password
+//access username from configuration
+
+//echo $db_username;
+
+//1 servername
+//2 userrname
+//3 password
+//4 database
+
+$mysql = new mysqli ("localhost", $db_username, $db_password, "webpr2016_laukoi");
+
+  $stmt = $mysql->prepare("INSERT INTO messages_sample (recipient, message) VALUES (?, ?)");
+
+  //echo error
+echo  $mysql->error;
+
+//we are replacing questionmarks with values
+//s - string, date or something that is based into charactrs and numbers
+//i - integer, numbers
+//d - decimal, floatv
+
+//for each question mark its type with one letter
+$stmt-> bind_param("ss", $_GET["to"], $_GET["message"]);
+
+
+//save
+if($stmt->execute()){
+  echo "saved succesfully";
+
+  }else{
+    echo $stmt->error;
+
+    	}
+
+	}
 
 
 ?>
+
+<h2> First application </h2>
+
+<form method="get">
+<label for="message">Message:*<label><br>
+<input type="text" name="message"><br><br>
+
+<label for="from">from<label><br>
+<input type="text" name="from"><br><br>
+
+
+<label for="to">To<label><br>
+<input type="text" name="to"><br><br>
+<!--This is the save button -->
+<input type="submit" value="Save to DB"
+
+
+
+<form>
